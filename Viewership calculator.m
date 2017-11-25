@@ -95,6 +95,8 @@ sumviewers_sorted=sort(sumviewers);  %%sorting viewership per channel
 figure %%creating figure representing sorted viewer distribution over chanels
 bar(sumviewers_sorted)
 
+%%creating figures to represent distribution of viewer dedication and
+%%streamer quality
 figure
 histogram(sum_attributes_viewers,50)
 
