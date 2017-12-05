@@ -93,12 +93,13 @@ end
 sumviewers_sorted=sort(sumviewers);  %%sorting viewership per channel
 
 figure %%creating figure representing sorted viewer distribution over chanels
+subplot(2,2,1)
 bar(sumviewers_sorted)
 
 %%creating figures to represent distribution of viewer dedication and
 %%streamer quality
-figure
+subplot(2,2,2)
 histogram(sum_attributes_viewers,50)
 
-figure
+subplot(2,2,3)
 histogram(sum_attributes_streamers)
