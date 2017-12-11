@@ -16,28 +16,23 @@ rand_attribute_streamers =  round(rand([n_streamers,n_attributes]),rounddecimal)
 i=1;    
 j=1;
 sum_attributes_streamers=zeros(n_streamers,1);  %%creating Matrix with later purpose of showing sum of streamer attributes which is streamer quality
-sum_attributes_viewers=zeros(n_streamers,1);    %%creating Matrix with later purpose of showing sum of viewer attributes which is viewer dedication
+sum_attributes_viewers=zeros(n_viewers,1);    %%creating Matrix with later purpose of showing sum of viewer attributes which is viewer dedication
 
-resultingproduct=zeros(n_viewers,n_streamers);  %%creating matrix with later purpose of representing viewer/streamer compatibility
-resultingviewership=zeros(n_viewers,n_streamers);   %%creating matrix with later purpose of representing viewrship (viewrs in columns, streamers in rows) 
-sumviewers=zeros(1,n_streamers); %%creating matrix with later purpose of summing up viewers per channel
+compatibility = zeros(n_viewers,n_streamers);  %%creating matrix with later purpose of representing viewer/streamer compatibility
+resultingViewership = zeros(n_viewers,n_streamers);   %%creating matrix with later purpose of representing viewership (viewers in columns, streamers in rows). Each row can only have one 1 as you can only be watchin gone channel. 
+sumViewers=zeros(1,n_streamers); %%creating matrix with later purpose of summing up viewers per channel
 
 
 %%loop that calculates streamer/viewer compatibility (row/column wise
 %%multiplication) 
 
-while j <= n_streamers
-    
+while j <= n_streamers    
     i=1;
-    
     while i <= n_viewers
-        resultingproduct(i,j)= rand_attribute_streamers(j,:)*rand_attribute_viewers(:,i);
+        compatibility(i,j)= rand_attribute_streamers(j,:)*rand_attribute_viewers(:,i);
         i=i+1;
     end
-    
-
-j=j+1;
-
+    j=j+1;
 end
 
 %%loop that calculates which streamer each viewer will be watching.
@@ -46,9 +41,8 @@ end
 
 i=1; %%reseting i
 while i <= n_viewers
-    
-    [M,I] = max(resultingproduct(i,:));
-    resultingviewership(i,I)=1;
+    [M,I] = max(compatibility(i,:));
+    resultingViewership(i,I)=1;
     i=i+1;
 end
 
@@ -60,10 +54,8 @@ j=1; %reseting j
 %%streamer/column)
 
 while j<=n_streamers
-    
-    sumviewers(1,j)=sum(resultingviewership(:,j));
-j=j+1;
-
+    sumViewers(1,j)=sum(resultingViewership(:,j));
+    j=j+1;
 end
 
 j=1; %%reseting j
@@ -71,10 +63,8 @@ j=1; %%reseting j
 %%loop that calculates streamer quality for each streamer (sum of attributes) 
 
 while j<=n_streamers;
-    
-sum_attributes_streamers(j,1)=sum(rand_attribute_streamers(j,:));
-j=j+1;
-
+    sum_attributes_streamers(j,1)=sum(rand_attribute_streamers(j,:));
+    j=j+1;
 end
 
 i=1; %%resetting i
@@ -82,34 +72,39 @@ i=1; %%resetting i
 %%loop that calculates viewer dedication for each viewer (sum of attributes
 
 while i<=n_viewers;
-    
-sum_attributes_viewers(i,1)=sum(rand_attribute_viewers(:,i));
-i=i+1;
-
+    sum_attributes_viewers(i,1)=sum(rand_attribute_viewers(:,i));
+    i=i+1;
 end
 
-sumviewers_sorted=sort(sumviewers);  %%sorting viewership per channel
+sumViewers_sorted = sort(sumViewers);  %%sorting viewership per channel
 
-
+%====== Plots =============================================================
 figure
 
-%%plot representing sorted viewer distribution over chanels
+%%plot representing sorted viewer distribution over channels
 subplot(2,2,1)
-bar(sumviewers_sorted)
+bar(sumViewers_sorted)
 title('Viewer Distribution over Channels')
-xlabel('Channel')
-ylabel('No. Viewers')
+xlabel('Sorted Channels')
+ylabel('No. of Viewers')
+
+%same thing but semilogarithmic
+subplot(2,2,2)
+semilogy(sumViewers_sorted)
+title('Viewer Distribution over Channels')
+xlabel('Sorted Channels')
+ylabel('No. of Viewers')
 
 %%creating figures to represent distribution of viewer dedication and
 %%streamer quality
-subplot(2,2,2)
+subplot(2,2,3)
 histogram(sum_attributes_viewers,50)
 title('Viewer Dedication')
-xlabel('Viewer')
-ylabel('Dedication')
+xlabel('Dedication')
+ylabel('No. of Viewers')
 
-subplot(2,2,3)
+subplot(2,2,4)
 histogram(sum_attributes_streamers)
 title('Streamer Quality')
-xlabel('Streamer')
-ylabel('Quality')
+xlabel('Quality')
+ylabel('No. of Streamers')
