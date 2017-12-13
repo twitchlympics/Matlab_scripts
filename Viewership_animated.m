@@ -73,16 +73,20 @@ end
 
 
 %========== Animation =====================================================
-
+step = 0; % keep track of which step in time one is in
 t = 0; % in hours
 T = 10; % end time
 tStep = 0.25; %step time in hours
+n_intervals = (T-t)/tStep;
+
+viewership = zeros(n_intervals, 5); % Matrix for area graph of the top 5 streamers over time
 
 viewerUpdateRate = round(rand([1, n_viewers]),rounddecimal); %How likely a viewer is going to check for better channels
 
 figure
 box on;
 while t < T
+    step = step +1;
     display(t)
     
     %Bring Best streamer online
@@ -120,7 +124,7 @@ while t < T
     end
     
     sumViewers_sorted = sort(sumViewers);  %%sorting viewership per channel
-    
+    viewership(step,:) = sumViewers_sorted(end-4:end);
     
     %====== Plots =========================================================
 
@@ -131,12 +135,19 @@ while t < T
     xlabel('Channels')
     ylabel('No. of Viewers')
 
-    %same thing but semilogarithmic
+    %Viewer distribution sorted and semilogarithmic
     subplot(2,2,2)
     semilogy(sumViewers_sorted)
     title('Viewer Distribution over Channels')
     xlabel('Sorted Channels')
     ylabel('No. of Viewers')
+    
+    
+    %Viewership over time
+    subplot(2,2,3)
+    area(viewership)
+    
+    
 
 %     %%creating figures to represent distribution of viewer dedication and
 %     %%streamer quality
