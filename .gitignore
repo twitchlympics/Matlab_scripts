@@ -21,3 +21,6 @@ octave-workspace
 
 # Simulink autosave extension
 *.autosave
+
+# Matlab auto generated files
+t.ps
