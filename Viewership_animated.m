@@ -23,12 +23,8 @@ sumViewers=zeros(1,n_streamers); %%creating matrix with later purpose of summing
 
 streamerOnline = round(rand([1, n_streamers]), 0); %Vector describing which streamers are online (0:offline, 1:online)
 
-%Settings for animation testing
-attribute_streamers(1,:) = ones(1, n_attributes);
-streamerOnline(1) = 0;
 
 %======== Precalculations =================================================
-
 
 %%loop that calculates streamer quality for each streamer (sum of attributes) 
 
@@ -45,6 +41,16 @@ while i<=n_viewers;
     i=i+1;
 end
 
+%======== Settings for animation testing ==================================
+%Find streamer with highest quality
+[M,I] = max(sum_attributes_streamers);
+bestStreamerIndex = I;
+
+%Set best streamer to be offline at start
+streamerOnline(bestStreamerIndex) = 0;
+
+
+%======== Precalculations =================================================
 
 %%loop that calculates streamer/viewer compatibility (row/column wise
 %%multiplication) 
@@ -68,9 +74,9 @@ end
 
 %========== Animation =====================================================
 
-t = 0; % in min.
-T = 24*60; %1 Day
-tStep = 15; %in minutes
+t = 0; % in hours
+T = 10; % end time
+tStep = 0.25; %step time in hours
 
 viewerUpdateRate = round(rand([1, n_viewers]),rounddecimal); %How likely a viewer is going to check for better channels
 
@@ -79,8 +85,13 @@ box on;
 while t < T
     display(t)
     
-    if t > 120
-        streamerOnline(1) = 1;
+    %Bring Best streamer online
+    if t > 2
+        streamerOnline(bestStreamerIndex) = 1;
+        
+        if t > 6
+            streamerOnline(bestStreamerIndex) = 0;
+        end
     end
    
     i = 1;
