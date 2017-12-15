@@ -3,12 +3,29 @@ close all
 clc
 
 
-n_viewers=10000;               %%number of viewers
+n_viewers=10000;                %%number of viewers
 n_attributes=50;                %%number of random attributes for viewer/streamer compatibility, viewer dedication and streamer quality
-n_streamers=100;                %%number of streamers
+n_streamers=50;                %%number of streamers
 rounddecimal=2;                 %%attribute decimalrounding
 attribute_viewers = round(rand([n_attributes,n_viewers]),rounddecimal); %%creating matrix with viewers in rows and their random attributes in columns
 attribute_streamers =  round(rand([n_streamers,n_attributes]),rounddecimal); %%creating matrix with streamers in columns and their random qualities(attributes) in rows
+
+step = 0; % keep track of which step in time one is in
+t = 0; % in hours
+T = 48; % end time
+tStep = 0.25; %step time in hours
+n_intervals = (T-t)/tStep;
+timeticks=linspace(0,n_intervals,10);   %generate array for time plot
+timeticklabels=round(linspace(t,T,10),0);        %generate array for time plot, actual values
+
+streamerOnline = round(rand(1,n_streamers),0);      %generate online Status for streamers
+
+%streamers will get a random straming time value between [x] and [y] hours:
+min_streaming_time=2;
+max_streaming_time=8;
+
+
+viewership = zeros(n_intervals, 5); % Matrix for area graph of the top 5 streamers over time
 
 %%defining loop variables
 
@@ -21,8 +38,10 @@ compatibility = zeros(n_viewers,n_streamers);  %%creating matrix with later purp
 resultingViewership = zeros(n_viewers,n_streamers);   %%creating matrix with later purpose of representing viewership (viewers in columns, streamers in rows). Each row can only have one 1 as you can only be watchin gone channel. 
 sumViewers=zeros(1,n_streamers); %%creating matrix with later purpose of summing up viewers per channel
 
-streamerOnline = round(rand([1, n_streamers]), 0); %Vector describing which streamers are online (0:offline, 1:online)
-
+streameronTime_base = min_streaming_time+round((max_streaming_time-min_streaming_time)*rand([1, n_streamers]), 1); %Vector describing how long streamers will still stay online
+streameroffTime_base = min_streaming_time+round((max_streaming_time-min_streaming_time)*rand([1, n_streamers]), 1); %Vector describing how long streamers will still stay offline
+streameronTime=streameronTime_base-min_streaming_time;
+streameroffTime=2*(streameroffTime_base-min_streaming_time);
 
 %======== Precalculations =================================================
 
@@ -64,7 +83,7 @@ while j <= n_streamers
     j=j+1;
 end
 
-i=1; %%reseting i
+i=1; %%resetting i
 while i <= n_viewers
     [M,I] = max(compatibility(i,:).*streamerOnline);
     resultingViewership(i,I)=1;
@@ -73,31 +92,29 @@ end
 
 
 %========== Animation =====================================================
-step = 0; % keep track of which step in time one is in
-t = 0; % in hours
-T = 10; % end time
-tStep = 0.25; %step time in hours
-n_intervals = (T-t)/tStep;
-
-viewership = zeros(n_intervals, 5); % Matrix for area graph of the top 5 streamers over time
-
-viewerUpdateRate = round(rand([1, n_viewers]),rounddecimal); %How likely a viewer is going to check for better channels
-
+viewerUpdateRate = round(rand([1, n_viewers]),rounddecimal); %How likely a viewer is going to check for better channels between the time interval
 figure
 box on;
 while t < T
     step = step +1;
-    display(t)
+    display(t)    
     
-    %Bring Best streamer online
-    if t > 2
-        streamerOnline(bestStreamerIndex) = 1;
-        
-        if t > 6
-            streamerOnline(bestStreamerIndex) = 0;
+    %Set Online Status of Streamers
+    i = 1;  %reset i
+    while i <=n_streamers
+        if (streameronTime(i) <= 0) && (streamerOnline(i) == 1)     
+            streamerOnline(i) = 0;                                  %switch streamer to "offline" when he runs out of time
+            streameroffTime(i) = streameroffTime_base(i);           %set offline timer (equal to online timer
+            color_change(i)=3;                                      %set a color change on status change
+        elseif (streameroffTime(i) <= 0) && (streamerOnline(i) == 0)   
+            streamerOnline(i) = 1;                                  %switch streamer to "offline" when he runs out of time
+            streameronTime(i) = streameronTime_base(i);             %set offline timer (equal to online timer
+            color_change(i)=3;                                      %set a color change on status change
         end
+        
+        i=i+1;
     end
-   
+    
     i = 1;
     while i <= n_viewers
         %only upate those viewers who want to change channel
@@ -123,8 +140,10 @@ while t < T
         j=j+1;
     end
     
-    sumViewers_sorted = sort(sumViewers);  %%sorting viewership per channel
-    viewership(step,:) = sumViewers_sorted(end-4:end);
+    sumViewers_sorted = sort(sumViewers,'descend');  %%sorting viewership per channel
+    
+    viewership(step,:) = sumViewers_sorted(1:5);
+    
     
     %====== Plots =========================================================
 
@@ -134,23 +153,44 @@ while t < T
     title('Viewer Distribution over Channels')
     xlabel('Channels')
     ylabel('No. of Viewers')
+    xlim([0 n_streamers+1]);
 
-    %Viewer distribution sorted and semilogarithmic
-    subplot(2,2,2)
-    semilogy(sumViewers_sorted)
-    title('Viewer Distribution over Channels')
-    xlabel('Sorted Channels')
-    ylabel('No. of Viewers')
+%     %Viewer distribution sorted and semilogarithmic
+%     subplot(2,2,3)
+%     semilogy(sumViewers_sorted)
+%     title('Viewer Distribution over Channels')
+%     xlabel('Sorted Channels')
+%     ylabel('No. of Viewers')
     
+    %%plot representing sorted viewer distribution over channels
+    subplot(2,2,2)
+    bar(sumViewers_sorted)
+    title('sorted Viewer Distribution over Channels')
+    xlabel('Sorted Channels (first half)')
+    ylabel('No. of Viewers')
+    xlim([0 n_streamers/2+1]);
+    
+    %Streamer online indicator
+    subplot(2,2,3)
+    bar(streamerOnline,'g')
+    title('Streamer activity')
+    xlabel('Channels')
+    xlim([0 n_streamers+1]);
     
     %Viewership over time
-    subplot(2,2,3)
+    subplot(2,2,4)
     area(viewership)
+    title('Viewer Distribution for Top 5 Streamers')
+    xlabel('time [hours]')
+    xticks(timeticks);
+    xticklabels(timeticklabels);
+    ylabel('No. of Viewers')
     
     
 
 %     %%creating figures to represent distribution of viewer dedication and
 %     %%streamer quality
+
 %     subplot(2,2,3)
 %     histogram(sum_attributes_viewers,50)
 %     title('Viewer Dedication')
@@ -163,7 +203,9 @@ while t < T
 %     xlabel('Quality')
 %     ylabel('No. of Streamers')
     
-    pause(1);
+    pause(0.1);
     
     t = t + tStep;
+    streameronTime=streameronTime-tStep;        %reduce durability of streamers by one time step, end of loop
+    streameroffTime=streameroffTime-tStep;        %reduce durability of streamers by one time step, end of loop
 end
