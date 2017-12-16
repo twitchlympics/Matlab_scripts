@@ -7,8 +7,8 @@ n_viewers=150000;               %%number of viewers
 n_attributes=50;                %%number of random attributes for viewer/streamer compatibility, viewer dedication and streamer quality
 n_streamers=100;                %%number of streamers
 rounddecimal=2;                 %%attribute decimalrounding
-rand_attribute_viewers = round(rand([n_attributes,n_viewers]),rounddecimal); %%creating matrix with viewers in rows and their random attributes in columns
-rand_attribute_streamers =  round(rand([n_streamers,n_attributes]),rounddecimal); %%creating matrix with streamers in columns and their random qualities(attributes) in rows
+attribute_viewers = round(rand([n_attributes,n_viewers]),rounddecimal); %%creating matrix with viewers in rows and their random attributes in columns
+attribute_streamers =  round(rand([n_streamers,n_attributes]),rounddecimal); %%creating matrix with streamers in columns and their random qualities(attributes) in rows
 
 
 %%defining loop variables
@@ -29,7 +29,7 @@ sumViewers=zeros(1,n_streamers); %%creating matrix with later purpose of summing
 while j <= n_streamers    
     i=1;
     while i <= n_viewers
-        compatibility(i,j)= rand_attribute_streamers(j,:)*rand_attribute_viewers(:,i);
+        compatibility(i,j)= attribute_streamers(j,:)*attribute_viewers(:,i);
         i=i+1;
     end
     j=j+1;
@@ -63,7 +63,7 @@ j=1; %%reseting j
 %%loop that calculates streamer quality for each streamer (sum of attributes) 
 
 while j<=n_streamers;
-    sum_attributes_streamers(j,1)=sum(rand_attribute_streamers(j,:));
+    sum_attributes_streamers(j,1)=sum(attribute_streamers(j,:));
     j=j+1;
 end
 
@@ -72,7 +72,7 @@ i=1; %%resetting i
 %%loop that calculates viewer dedication for each viewer (sum of attributes
 
 while i<=n_viewers;
-    sum_attributes_viewers(i,1)=sum(rand_attribute_viewers(:,i));
+    sum_attributes_viewers(i,1)=sum(attribute_viewers(:,i));
     i=i+1;
 end
 
