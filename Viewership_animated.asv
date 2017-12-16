@@ -32,6 +32,7 @@ color_change_on = zeros(1,n_streamers);
 color_change_off = zeros(1,n_streamers);
 
 %%defining loop variables
+
 i=1;    
 j=1;
 sum_attributes_streamers=zeros(n_streamers,1);  %%creating Matrix with later purpose of showing sum of streamer attributes which is streamer quality
@@ -92,8 +93,6 @@ while j <= n_streamers
     j=j+1;
 end
 
-%calculate threshhold deciding whether viewers will be on- or offline
-
 for i=1:n_viewers
     max_compatibility(i)=max(compatibility(i,:));
     mean_compatibility(i)=mean(compatibility(i,:));
@@ -103,9 +102,6 @@ for i=1:n_viewers
 end
         
 i=1; %%resetting i
-
-%calculating viewership matrix (which streamer a viewer is watchting, if
-%any)
 while i <= n_viewers
     [M,I] = max(compatibility(i,:).*streamerOnline);
     if max_compatibility(I) > mean_comp-sigma_comp
@@ -146,8 +142,8 @@ while t < T
             % (maximum compatibility column gets a 1, rest 0 for each row)(row
             % corresponds to viewer)
             resultingViewership(i,:) = zeros(1, n_streamers); %reset
-            [M,I] = max(compatibility(i,:).*streamerOnline);  %find best compatibility
-            if max_compatibility(I) > (mean_comp-sigma_comp)  %only make the viewer watch the channel if compatibility is above threshhold 
+            [M,I] = max(compatibility(i,:).*streamerOnline);
+            if max_compatibility(I) > (mean_comp-sigma_comp)
                 resultingViewership(i,I) = 1;
             end
             
@@ -167,7 +163,7 @@ while t < T
     
     sumViewers_sorted = sort(sumViewers,'descend');  %%sorting viewership per channel
     
-    viewership(step,:) = sumViewers_sorted(1:5);   %%area graph entry
+    viewership(step,:) = sumViewers_sorted(1:5);
     
     
     %====== Plots =========================================================
@@ -183,8 +179,6 @@ while t < T
     bar(sumViewers)
     
     i=1;            %reset i;
-    
-    %change bar color if a stramer recently went on- or offline
     while i<=n_streamers
         if color_change_on(i)>=0
             hold on
@@ -200,8 +194,7 @@ while t < T
         i=i+1;
     end
     
-    %%plot representing sorted viewer distribution over channels in both
-    %%linear and log scale
+    %%plot representing sorted viewer distribution over channels
     subplot(2,2,2)
     hold off
     title('sorted Viewer Distribution over Channels')
