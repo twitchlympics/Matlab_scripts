@@ -175,12 +175,13 @@ while t < T
     %%plot representing sorted viewer distribution over channels
     subplot(2,2,1)
     hold off
+    
+    bar(sumViewers)
     title('Viewer Distribution over Channels')
     xlabel('Channels')
     ylabel('No. of Viewers')
     xlim([0 n_streamers+1])
     ylim([0 n_viewers])
-    bar(sumViewers)
     
     i=1;            %reset i;
     
